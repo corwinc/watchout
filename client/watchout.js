@@ -14,8 +14,6 @@ var userSettings = [{
   r: 5
 }];
 
-
-
 /////////////////////////// DEFINE GAME BOARD ////////////////////////////////////
 var gameBoard = d3.select('.board')
   .append('svg')
@@ -35,52 +33,47 @@ gameBoard.selectAll('.player')
       d3.select(this).style('fill', 'blue');
     });
 
+/////// CREATE DATA ///////////////
+var enemyData = [];
 
-var getRandomNumber = function (n) {
-  return Math.random() * n;
-};
+for (var i = 0; i < gameSettings.nEnemies; i++) {
+  var dataSet = {
+    'id': i,
+    'x': Math.random() * gameSettings.width,
+    'y': Math.random() * gameSettings.height
+  };
+
+  enemyData.push(dataSet);
+}
+
+/*var enemyData = _.range(0, nEnemies).map(function(id) {
+  return {
+    'id': id,
+    'x': Math.random() * gameSettings.width,
+    'y': Math.random() * gameSettings.height
+  };
+});*/
+
+var enemies = gameBoard.selectAll('.enemy')
+  .data(enemyData);
+
+///////////// ENTER ///////////////
+enemies
+  .enter().append('circle')
+    .attr('class', 'enemy')
+    .attr('fill', 'aqua')
+    .attr('r', gameSettings.r)
+    // .transition().duration(1000)
+    .attr('cx', function(d, i) { return d.x; })
+    .attr('cy', function(d, i) { return d.y; });
 
 /////////////////////// UPDATE FUNCTION /////////////////////
 var update = function() {
-
-  /////// CREATE DATA ///////////////
-  var enemyData = [];
-
-  for (var i = 0; i < gameSettings.nEnemies; i++) {
-    var dataSet = {
-      'id': i,
-      'x': getRandomNumber(gameSettings.width),
-      'y': getRandomNumber(gameSettings.height)
-    };
-
-    enemyData.push(dataSet);
-  }
- 
-  var enemies = gameBoard.selectAll('.enemy')
-    .data(enemyData);
-    
-
-///////////// ENTER ///////////////
-  enemies.enter().append('circle')
-      .attr('class', 'enemy')
-      .attr('fill', 'aqua')
-      .attr('r', 0)
-      // .transition().duration(1000)
-      .attr('cx', function(d, i) { return d.x; })
-      .attr('cy', function(d, i) { return d.y; });
-
-
 ////////////// TRANSITION //////////////
   enemies
-      .data(enemyData)
-      // .transition().duration(1000)
-      .attr('r', gameSettings.r)
- 
-      .attr('cx', function(d, i) { return d.x; })
-      .attr('cy', function(d, i) { return d.y; });
-
-      
-  enemies.exit().remove();
+      .transition().duration(1000)
+      .attr('cx', function(d, i) { return Math.random() * gameSettings.width; })
+      .attr('cy', function(d, i) { return Math.random() * gameSettings.height; });
 };
 
 update();
