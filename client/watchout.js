@@ -4,34 +4,53 @@
 var gameSettings = {
   height: 450,
   width: 700,
-  nEnemies: 30,
+  nEnemies: 20,
   r: 10
 };
 
 var userSettings = [{
   x: 225,
   y: 350,
-  r: 5
+  r: 20
 }];
 
 /////////////////////////// DEFINE GAME BOARD ////////////////////////////////////
+/// BOARD ///
 var gameBoard = d3.select('.board')
   .append('svg')
     .attr('width', gameSettings.width)
     .attr('height', gameSettings.height);
 
-gameBoard.selectAll('.player')
-  .data(userSettings)
+/// PLAYER ///
+var player = gameBoard.selectAll('.player')
+  .data(userSettings);
+
+player
   .enter().append('circle')
-    .attr('class', 'user')
+    .attr('class', 'player')
     .attr('fill', 'red')
     .attr('r', function(d) { return d.r; })
     .attr('cx', function(d) { return d.x; })
     .attr('cy', function(d) { return d.y; })
-    .on('mouseover', function () {
-      console.log(this);
-      d3.select(this).style('fill', 'blue');
-    });
+    .text('text', 'test');
+
+player.on('mousedown', function() {
+  /// DRAG EVENT ///
+  var mousemove = function () {
+    player
+      .attr('cx', function(d, i) { return d3.mouse(player.node())[0]; })
+      .attr('cy', function(d, i) { return d3.mouse(player.node())[1]; });
+  };
+
+  var mouseup = function () {
+    w.on('mousemove', null).on('mouseup', null);
+  };
+
+  var w = gameBoard
+    .on('mousemove', mousemove)
+    .on('mouseup', mouseup);
+});
+
 
 /////// CREATE DATA ///////////////
 var enemyData = [];
@@ -46,28 +65,21 @@ for (var i = 0; i < gameSettings.nEnemies; i++) {
   enemyData.push(dataSet);
 }
 
-/*var enemyData = _.range(0, nEnemies).map(function(id) {
-  return {
-    'id': id,
-    'x': Math.random() * gameSettings.width,
-    'y': Math.random() * gameSettings.height
-  };
-});*/
-
 var enemies = gameBoard.selectAll('.enemy')
   .data(enemyData);
 
-///////////// ENTER ///////////////
+
+///////////// ENTER / ADD DATA ///////////////
 enemies
   .enter().append('circle')
     .attr('class', 'enemy')
     .attr('fill', 'aqua')
     .attr('r', gameSettings.r)
-    // .transition().duration(1000)
     .attr('cx', function(d, i) { return d.x; })
     .attr('cy', function(d, i) { return d.y; });
 
-/////////////////////// UPDATE FUNCTION /////////////////////
+
+/////////////////////// UPDATE /////////////////////
 var update = function() {
 ////////////// TRANSITION //////////////
   enemies
