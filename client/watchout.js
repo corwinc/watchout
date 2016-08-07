@@ -18,15 +18,15 @@ var score = 0;
 var highScore = 0;
 var collisionCount = 0;
 
+
 /////////////////// COLLIDE FUNCTION ////////////////////////
 var collide = function() {
   var x1 = player.attr('cx');
   var y1 = player.attr('cy');
   var r1 = +player.attr('r');
 
-  // need to get in-transit location
   enemies.each(function() {
-    var enemy = d3.select(this);
+    var enemy = d3.select(this); // get the d3 methods
 
     var x2 = enemy.attr('cx');
     var y2 = enemy.attr('cy');
@@ -36,12 +36,17 @@ var collide = function() {
     var collisionDistance = Math.pow(r1 + r2, 2);
 
     if (currentDistance <= collisionDistance) {
+      highScore = Math.max(score, highScore);
+      
+      if (score > 1) {
+        collisionCount++;
+      }
       score = 0;
+      
       player
         .attr('fill', 'blue')
         .transition().duration(500)
         .attr('fill', 'red');
-      console.log('collision!!!');
     }
   });
 };
@@ -121,15 +126,13 @@ var update = function() {
       .transition().duration(1500)
       .attr('cx', function(d, i) { return Math.random() * gameSettings.width; })
       .attr('cy', function(d, i) { return Math.random() * gameSettings.height; })
-      // .tween('collide', function () {
-      //   return collide(player, d3.select(this));
-      // })
       .each('end', function () {
         update(d3.select(this));
       });
 };
 
 update();
+
 // Check for collisions
 d3.timer(collide, 10);
 
@@ -137,12 +140,10 @@ d3.timer(collide, 10);
 ///////////// SCOREBOARD ///////////////
 var updateScore = function () {
   score += 1;
-  Math.max(score, highScore);
 
-  d3.selectAll('.score span').text(score);
-  d3.selectAll('.highScore span').text(highScore);
-  d3.selectAll('.collisions span').text(collisionCount);
+  d3.selectAll('.current').text('Current score: ' + score);
+  d3.selectAll('.highscore').text('High score: ' + highScore);
+  d3.selectAll('.collisions').text('Collisions: ' + collisionCount);
 };
 
 setInterval(updateScore, 100);
-
